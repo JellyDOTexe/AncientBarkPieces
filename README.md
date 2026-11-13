@@ -4,7 +4,9 @@ Build pieces made out of ancient bark, so you can finally put up a base in the s
 
 I always end up with stacks of ancient bark and nothing to do with it, so this is that.
 
-**Heads up:** this mod was made with AI tools. The code was written with Claude Code and the icon came from an AI image generator. The bark and moss textures are recoloured from the game's own swamp tree.
+**Heads up:** this mod was made with help from Claude.
+
+The bark and moss textures are recoloured from the game's own swamp tree.
 
 ![pieces](https://raw.githubusercontent.com/JellyDOTexe/AncientBarkPieces/main/images/showcase.jpg)
 
