@@ -14,7 +14,7 @@ namespace AncientBarkPieces
 {
     // Ancient bark versions of the vanilla wood building pieces: clones with a dark, mossy bark texture
     // (world-mapped, vanilla pixel size) that cost Ancient Bark instead of wood.
-    [BepInPlugin(Guid, "Ancient Bark Pieces", "1.0.0")]
+    [BepInPlugin(Guid, "Ancient Bark Pieces", "1.0.1")]
     [BepInDependency(Jotunn.Main.ModGuid)]
     [BepInDependency("blacks7ar.CoreWoodPieces", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
