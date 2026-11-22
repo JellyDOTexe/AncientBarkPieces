@@ -66,3 +66,7 @@ It adds build pieces, so everyone on the server needs it, and so does a dedicate
 ## Source
 
 https://github.com/JellyDOTexe/AncientBarkPieces (MIT)
+
+## Bugs
+
+Found a bug? Open an issue on [GitHub](https://github.com/JellyDOTexe/AncientBarkPieces/issues) and I'll take a look.
