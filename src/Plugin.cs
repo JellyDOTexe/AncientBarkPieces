@@ -14,9 +14,10 @@ namespace AncientBarkPieces
 {
     // Ancient bark versions of the vanilla wood building pieces: clones with a dark, mossy bark texture
     // (world-mapped, vanilla pixel size) that cost Ancient Bark instead of wood.
-    [BepInPlugin(Guid, "Ancient Bark Pieces", "1.0.1")]
+    [BepInPlugin(Guid, "Ancient Bark Pieces", "1.1.0")]
     [BepInDependency(Jotunn.Main.ModGuid)]
     [BepInDependency("blacks7ar.CoreWoodPieces", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("shudnal.MoreGatesExtended", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public const string Guid = "jellydotexe.ancientbarkpieces";
@@ -49,6 +50,9 @@ namespace AncientBarkPieces
             "BCW_CoreWood_Stair", "BCW_CoreWood_Window1", "BCW_CoreWood_WindowHalf",
             "BCW_CoreWood_Fence1", "BCW_CoreWood_Fence2", "BCW_CoreWood_FencePillar", "BCW_CoreWood_PalisadeFence", "BCW_CoreWood_PalisadeFenceTall",
             "wood_pole_log", "wood_pole_log_4", "wood_wall_log", "wood_wall_log_4x0.5", "wood_log_26", "wood_log_45",
+            // framed glass windows from shudnal's More Gates Extended, copied at runtime when that mod is installed
+            "h_window_01", "h_window_02", "h_window_03", "h_window_04", "h_window_05",
+            "h_window_06", "h_window_07", "h_window_08", "h_window_09",
         };
         static readonly Dictionary<string, string> Names = new Dictionary<string, string>
         {
@@ -70,6 +74,10 @@ namespace AncientBarkPieces
             { "BCW_CoreWood_PalisadeFence", "Ancient bark palisade" }, { "BCW_CoreWood_PalisadeFenceTall", "Ancient bark palisade (tall)" },
             { "darkwood_arch", "Ancient bark arch" }, { "darkwood_pole4", "Ancient bark pole 4m" }, { "darkwood_beam4x4", "Ancient bark beam 4m" },
             { "stake_wall", "Ancient bark stakewall" }, { "wood_fence", "Ancient bark roundpole fence" },
+            { "h_window_01", "Ancient bark small window 1" }, { "h_window_02", "Ancient bark small window 2" }, { "h_window_03", "Ancient bark small window 3" },
+            { "h_window_04", "Ancient bark small window 4" }, { "h_window_05", "Ancient bark small window 5" },
+            { "h_window_06", "Ancient bark big window 1" }, { "h_window_07", "Ancient bark big window 2" },
+            { "h_window_08", "Ancient bark big window 3" }, { "h_window_09", "Ancient bark big window 4" },
         };
         // CoreWoodPieces' own amounts (core wood + wood), paid in bark
         static readonly Dictionary<string, int> BcwCost = new Dictionary<string, int>
@@ -107,28 +115,44 @@ namespace AncientBarkPieces
                 roofSlope = LoadPng("roofslope.png"); roofRidge = LoadPng("roofridge.png");
                 int n = 0;
                 foreach (var b in Bases) if (AddPiece(b)) n++;
-                Log.LogInfo("Registered " + n + " of " + Bases.Length + " ancient bark pieces");
+                if (AddPiece("wood_pole_log", ShortPole, "Ancient bark log pole 1m", HalfHeight)) n++;
+                Log.LogInfo("Registered " + n + " of " + (Bases.Length + 1) + " ancient bark pieces");
             }
             catch (Exception e) { Log.LogError("Ancient bark pieces failed: " + e); }
         }
 
-        bool AddPiece(string baseName)
+        static string ItemName(Piece.Requirement r) => r.m_resItem.name.Replace("JVLmock_", "");
+        static bool IsMoreGates(string baseName) => baseName.StartsWith("h_window_");
+
+        // 1 m log pole: the 2 m log pole at half height. Snap points and collider scale with the root,
+        // and the bark is world-mapped, so it keeps the same texel size.
+        const string ShortPole = "wood_pole_log_1";
+        static void HalfHeight(CustomPiece c)
         {
+            var t = c.PiecePrefab.transform; var s = t.localScale; t.localScale = new Vector3(s.x, s.y * 0.5f, s.z);
+            foreach (var r in c.PiecePrefab.GetComponent<Piece>().m_resources) r.m_amount = Math.Max(1, (r.m_amount + 1) / 2);
+        }
+
+        bool AddPiece(string baseName, string newName = null, string displayName = null, Action<CustomPiece> tweak = null)
+        {
+            newName = newName ?? baseName;
             var basePrefab = PrefabManager.Instance.GetPrefab(baseName);
             var basePiece = basePrefab ? basePrefab.GetComponent<Piece>() : null;
             if (basePiece == null)
             {
                 if (baseName.StartsWith("BCW_")) Log.LogInfo(baseName + " not found (CoreWoodPieces not installed), skipped");
+                else if (IsMoreGates(baseName)) Log.LogInfo(baseName + " not found (More Gates Extended not installed), skipped");
                 else Log.LogWarning(baseName + " not found, skipped");
                 return false;
             }
 
             var config = new PieceConfig
             {
-                Name = Names.TryGetValue(baseName, out var nm) ? nm : "Ancient bark " + basePiece.m_name, // the $token inside is still translated
+                Name = displayName ?? (Names.TryGetValue(baseName, out var nm) ? nm : "Ancient bark " + basePiece.m_name), // the $token inside is still translated
                 PieceTable = PieceTables.Hammer,
-                Requirements = basePiece.m_resources.Where(r => r.m_resItem != null && !Dropped.Contains(r.m_resItem.name)).Select(r => new RequirementConfig(
-                    WoodItems.Contains(r.m_resItem.name) ? "ElderBark" : r.m_resItem.name, r.m_amount, 0, r.m_recover)).ToArray(),
+                // Pieces from Jotunn mods (More Gates) still hold Jotunn's "JVLmock_" placeholder items when we copy them.
+                Requirements = basePiece.m_resources.Where(r => r.m_resItem != null && !Dropped.Contains(ItemName(r))).Select(r => new RequirementConfig(
+                    WoodItems.Contains(ItemName(r)) ? "ElderBark" : ItemName(r), r.m_amount, 0, r.m_recover)).ToArray(),
             };
             if (baseName.StartsWith("BCW_"))
             {
@@ -138,13 +162,13 @@ namespace AncientBarkPieces
                 config.CraftingStation = CraftingStations.Workbench;
                 config.Category = PieceCategories.Building;
             }
-            var custom = new CustomPiece(Prefix + baseName, baseName, config);
+            var custom = new CustomPiece(Prefix + newName, baseName, config);
             var left = new List<string>();
             int count = Retexture(custom.PiecePrefab, left);
             if (count == 0)
             {
                 Log.LogWarning(baseName + ": no wood material found (" + string.Join(", ", left) + "), skipped");
-                PrefabManager.Instance.DestroyPrefab(Prefix + baseName);
+                PrefabManager.Instance.DestroyPrefab(Prefix + newName);
                 return false;
             }
             MapRoofLogs(custom.PiecePrefab); // only touches pieces built from the "VerticalLog" mesh
@@ -154,13 +178,14 @@ namespace AncientBarkPieces
                 bool upright = lg != null && !lg.sharedMesh.name.StartsWith("ablog_r");
                 custom.Piece.m_name = "Ancient bark log wall (" + (upright ? "vertical" : "horizontal") + ")";
             }
+            tweak?.Invoke(custom);
             PieceManager.Instance.AddPiece(custom);
             var piece = custom.Piece;
             RenderManager.Instance.EnqueueRender(new RenderManager.RenderRequest(custom.PiecePrefab)
             {
                 Rotation = RenderManager.IsometricRotation, Width = 64, Height = 64,
             }, sprite => { if (sprite != null && piece != null) piece.m_icon = sprite; });
-            Log.LogInfo(Prefix + baseName + ": " + string.Join(" + ", config.Requirements.Select(r => r.Amount + " " + r.Item))
+            Log.LogInfo(Prefix + newName + ": " + string.Join(" + ", custom.Piece.m_resources.Select(r => r.m_amount + " " + (r.m_resItem ? ItemName(r) : "?")))
                 + (left.Count > 0 ? "  (kept: " + string.Join(", ", left.Distinct()) + ")" : ""));
             return true;
         }
@@ -174,7 +199,11 @@ namespace AncientBarkPieces
                 var mats = r.sharedMaterials; bool changed = false;
                 for (int i = 0; i < mats.Length; i++)
                 {
-                    var m = mats[i]; if (m == null || m.shader == null || m.shader.name != "Custom/Piece") continue;
+                    var m = mats[i]; if (m == null || m.shader == null) continue;
+                    // More Gates' windows use Unity's Standard shader for their plank frames: give those the bark
+                    // material made from vanilla's own wood wall, so they match the bark walls next to them.
+                    if (m.shader.name == "Standard" && m.name.StartsWith("woodwall", StringComparison.OrdinalIgnoreCase)) m = VanillaWoodwall() ?? m;
+                    if (m.shader.name != "Custom/Piece") continue;
                     if (!swapped.TryGetValue(m, out var nm)) swapped[m] = nm = MakeMaterial(m);
                     if (nm == null) { left.Add(m.name); continue; }
                     mats[i] = nm; changed = true; count++;
@@ -182,6 +211,18 @@ namespace AncientBarkPieces
                 if (changed) r.sharedMaterials = mats;
             }
             return count;
+        }
+
+        Material vanillaWoodwall;
+        Material VanillaWoodwall()
+        {
+            if (vanillaWoodwall == null)
+            {
+                var p = PrefabManager.Instance.GetPrefab("woodwall");
+                vanillaWoodwall = p ? p.GetComponentsInChildren<MeshRenderer>(true).SelectMany(r => r.sharedMaterials)
+                    .FirstOrDefault(x => x != null && x.shader != null && x.shader.name == "Custom/Piece" && x.name.StartsWith("woodwall")) : null;
+            }
+            return vanillaWoodwall;
         }
 
         Material MakeMaterial(Material m)

@@ -23,7 +23,7 @@ Plank pieces (always there):
 - a 4m pole, a 4m beam and an arch
 - stair and ladder
 - door and gate
-- log poles and log beams (the core wood shapes), including the angled ones
+- log poles and log beams (the core wood shapes), including the angled ones, plus a 1m log pole
 - stakewall and roundpole fence
 
 Log pieces (only if you have CoreWoodPieces, see below):
@@ -36,25 +36,35 @@ Log pieces (only if you have CoreWoodPieces, see below):
 - four drawbridges
 - two fences, a fence pillar, palisade and tall palisade
 
+Windows (only if you have More Gates Extended, see below):
+
+- five small and four big framed glass windows
+
 The roof logs get a bit more moss toward the bottom edge and the ridge logs are mossier than the rest. Each log picks a different bit of bark depending on where you place it, so a big roof doesn't look like the same four logs copy pasted.
 
 ## CoreWoodPieces
 
 The log pieces are bark versions of the pieces from [CoreWoodPieces by blacks7ar](https://thunderstore.io/package/blacks7ar/CoreWoodPieces/). Nothing from that mod is included here. This mod copies those pieces from your installed CoreWoodPieces when the game starts and puts the bark on them.
 
-So with CoreWoodPieces installed you get all 65 pieces. Without it the mod still works, you just get the 32 plank pieces and no log roofs. If you want roofs, install it.
+So with CoreWoodPieces installed you get 66 pieces (75 with More Gates Extended too). Without it the mod still works, you just get the 33 plank pieces and no log roofs. If you want roofs, install it.
 
 All credit for those shapes goes to blacks7ar.
+
+## More Gates Extended
+
+The windows are bark versions of the framed glass windows from [More Gates Extended by shudnal](https://thunderstore.io/package/shudnal/MoreGatesExtended/). Same deal as CoreWoodPieces: nothing from that mod is included, the windows get copied from your installed copy when the game starts and the wood frame gets the bark. The glass stays glass.
+
+Each window costs the same amount of bark as it costs wood in More Gates. Without More Gates you just don't get the windows.
 
 ## Install
 
 Use a mod manager, or drop `AncientBarkPieces.dll` into `BepInEx/plugins`.
 
-Needs Jotunn. CoreWoodPieces is optional but you really want it.
+Needs Jotunn. CoreWoodPieces is optional but you really want it. More Gates Extended is optional too, it's only for the windows.
 
 ## Multiplayer
 
-It adds build pieces, so everyone on the server needs it, and so does a dedicated server. Everyone should also agree on whether CoreWoodPieces is installed.
+It adds build pieces, so everyone on the server needs it, and so does a dedicated server. Everyone should also agree on whether CoreWoodPieces and More Gates Extended are installed.
 
 ## Good to know
 

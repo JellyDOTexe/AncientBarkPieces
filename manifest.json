@@ -1,8 +1,8 @@
 {
     "name": "AncientBarkPieces",
-    "version_number": "1.0.1",
+    "version_number": "1.1.0",
     "website_url": "https://github.com/JellyDOTexe/AncientBarkPieces",
-    "description": "Dark, mossy ancient bark build pieces for the swamp. Walls, floors, log roofs, gates, fences. Costs Ancient Bark.",
+    "description": "Dark, mossy ancient bark build pieces for the swamp. Walls, floors, log roofs, windows, gates, fences. Costs Ancient Bark.",
     "dependencies": [
         "ValheimModding-Jotunn-2.30.2",
         "blacks7ar-CoreWoodPieces-1.2.6"
